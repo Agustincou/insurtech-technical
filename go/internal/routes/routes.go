@@ -5,13 +5,14 @@ import (
 
 	"github.com/Agustincou/tec-exam/internal/errors"
 	"github.com/Agustincou/tec-exam/internal/handlers"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func SetupRouter() *fiber.App {
 	app := fiber.New()
 
-	// Middleware de manejo de errores global
+	// Definición del middleware para manejo de errores global
 	app.Use(func(c *fiber.Ctx) error {
 		if err := c.Next(); err != nil {
 			log.Printf("Error: %v\n", err)
@@ -31,8 +32,11 @@ func SetupRouter() *fiber.App {
 		return nil
 	})
 
+	matrixApi := app.Group("/matrix")
+
 	// Rutas
-	app.Post("/factorize", handlers.Factorize)
+	matrixApi.Post("/factorize", handlers.Factorize)
+	matrixApi.Post("/rotate", handlers.Rotate)
 
 	return app
 }

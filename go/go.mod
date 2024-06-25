@@ -1,6 +1,6 @@
 module github.com/Agustincou/tec-exam
 
-go 1.21.1
+go 1.21
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.4
