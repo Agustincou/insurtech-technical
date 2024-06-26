@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/Agustincou/tec-exam/internal/errors"
+	"github.com/Agustincou/tec-exam/internal/models"
 	"github.com/Agustincou/tec-exam/internal/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,6 +13,14 @@ import (
 
 //ToDo: Logueo estructurado con request-id y tracing de línea de código
 
+// @Summary Factorial QR de una matriz
+// @Description Recibe una matriz y retorna dos matrices Q y R
+// @ID factorize-matrix
+// @Accept  json
+// @Produce  json
+// @Param matrix body [][]float64 true "Matriz a factorizar"
+// @Success 200 {object} models.QRResponse
+// @Router /matrix/factorize [post]
 func Factorize(c *fiber.Ctx) error {
 	// Decodificar la matriz recibida en formato JSON
 	var request struct {
@@ -44,10 +53,7 @@ func Factorize(c *fiber.Ctx) error {
 	qr.RTo(&R)
 
 	// Convertir matrices Q y R a estructuras de slice para JSON
-	qrResult := struct {
-		Q [][]float64 `json:"Q"`
-		R [][]float64 `json:"R"`
-	}{
+	qrResult := models.QRResponse{
 		Q: services.MatToSlice(&Q),
 		R: services.MatToSlice(&R),
 	}
@@ -60,6 +66,15 @@ func Factorize(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(qrResult)
 }
 
+// @Summary Rota una matriz
+// @Description Recibe una matriz y una cantidad de grados de giro (múltiplos de 90) y retorna la matriz rotada dicha cantidad de grados
+// @ID rotate-matrix
+// @Accept  json
+// @Produce  json
+// @Param matrix body [][]float64 true "Matriz a rotar"
+// @Param degrees body int true "Grados de rotación"
+// @Success 200 {object} models.RotateResponse
+// @Router /matrix/rotate [post]
 func Rotate(c *fiber.Ctx) error {
 	// Decodificar la matriz recibida en formato JSON
 	var request struct {
@@ -84,10 +99,7 @@ func Rotate(c *fiber.Ctx) error {
 		return errors.InvalidRotation
 	}
 
-	rotationResult := struct {
-		Degrees int         `json:"degrees"`
-		Result  [][]float64 `json:"result"`
-	}{
+	rotationResult := models.RotateResponse{
 		Degrees: rotationDegrees,
 		Result:  rotatedMatrix,
 	}

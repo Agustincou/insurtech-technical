@@ -1,0 +1,93 @@
+basePath: /matrix
+definitions:
+  models.QRResponse:
+    properties:
+      Q:
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+      R:
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+    type: object
+  models.RotateResponse:
+    properties:
+      degrees:
+        type: integer
+      result:
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API de operaciones sobre matrices.
+  title: Go API
+  version: "1.0"
+paths:
+  /matrix/factorize:
+    post:
+      consumes:
+      - application/json
+      description: Recibe una matriz y retorna dos matrices Q y R
+      operationId: factorize-matrix
+      parameters:
+      - description: Matriz a factorizar
+        in: body
+        name: matrix
+        required: true
+        schema:
+          items:
+            items:
+              type: number
+            type: array
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QRResponse'
+      summary: Factorial QR de una matriz
+  /matrix/rotate:
+    post:
+      consumes:
+      - application/json
+      description: Recibe una matriz y una cantidad de grados de giro (múltiplos de
+        90) y retorna la matriz rotada dicha cantidad de grados
+      operationId: rotate-matrix
+      parameters:
+      - description: Matriz a rotar
+        in: body
+        name: matrix
+        required: true
+        schema:
+          items:
+            items:
+              type: number
+            type: array
+          type: array
+      - description: Grados de rotación
+        in: body
+        name: degrees
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RotateResponse'
+      summary: Rota una matriz
+swagger: "2.0"

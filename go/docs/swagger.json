@@ -1,0 +1,140 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API de operaciones sobre matrices.",
+        "title": "Go API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/matrix",
+    "paths": {
+        "/matrix/factorize": {
+            "post": {
+                "description": "Recibe una matriz y retorna dos matrices Q y R",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Factorial QR de una matriz",
+                "operationId": "factorize-matrix",
+                "parameters": [
+                    {
+                        "description": "Matriz a factorizar",
+                        "name": "matrix",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QRResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/matrix/rotate": {
+            "post": {
+                "description": "Recibe una matriz y una cantidad de grados de giro (múltiplos de 90) y retorna la matriz rotada dicha cantidad de grados",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Rota una matriz",
+                "operationId": "rotate-matrix",
+                "parameters": [
+                    {
+                        "description": "Matriz a rotar",
+                        "name": "matrix",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "description": "Grados de rotación",
+                        "name": "degrees",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RotateResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.QRResponse": {
+            "type": "object",
+            "properties": {
+                "Q": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "R": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "models.RotateResponse": {
+            "type": "object",
+            "properties": {
+                "degrees": {
+                    "type": "integer"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
