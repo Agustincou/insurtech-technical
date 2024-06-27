@@ -6,6 +6,8 @@ import (
 	"github.com/Agustincou/tec-exam/internal/errors"
 	"github.com/Agustincou/tec-exam/internal/models"
 	"github.com/Agustincou/tec-exam/internal/services"
+	"github.com/Agustincou/tec-exam/internal/services/restclient"
+	"github.com/Agustincou/tec-exam/pkg/enum"
 
 	"github.com/gofiber/fiber/v2"
 	"gonum.org/v1/gonum/mat"
@@ -18,14 +20,12 @@ import (
 // @ID factorize-matrix
 // @Accept  json
 // @Produce  json
-// @Param matrix body [][]float64 true "Matriz a factorizar"
+// @Param Request body models.Request true "Solicitud"
 // @Success 200 {object} models.QRResponse
 // @Router /matrix/factorize [post]
 func Factorize(c *fiber.Ctx) error {
 	// Decodificar la matriz recibida en formato JSON
-	var request struct {
-		Value [][]float64 `json:"matrix"`
-	}
+	request := models.Request{}
 
 	if err := c.BodyParser(&request); err != nil {
 		log.Println(err.Error())
@@ -54,8 +54,32 @@ func Factorize(c *fiber.Ctx) error {
 
 	// Convertir matrices Q y R a estructuras de slice para JSON
 	qrResult := models.QRResponse{
-		Q: services.MatToSlice(&Q),
-		R: services.MatToSlice(&R),
+		Results: []models.MatrixResult{
+			{
+				Type:  enum.Q,
+				Value: services.MatToSlice(&Q),
+			},
+			{
+				Type:  enum.R,
+				Value: services.MatToSlice(&R),
+			},
+		},
+	}
+
+	// Segmento de código duplicado, mejorable por interfaz de la response con función de agregado de estadísticas
+	if request.WithStatistics {
+		for index, matrix := range qrResult.Results {
+			client := restclient.NewClient("http://localhost:3000/matrix/stats")
+			resp, err := client.PostMatrix(matrix.Value)
+
+			if err != nil {
+				log.Println(err.Error())
+
+				return errors.InternalAPI
+			}
+
+			qrResult.Results[index].Stats = resp
+		}
 	}
 
 	if err := c.BodyParser(&qrResult); err != nil {
@@ -71,16 +95,12 @@ func Factorize(c *fiber.Ctx) error {
 // @ID rotate-matrix
 // @Accept  json
 // @Produce  json
-// @Param matrix body [][]float64 true "Matriz a rotar"
-// @Param degrees body int true "Grados de rotación"
+// @Param RotationRequest body models.RotationRequest true "Solicitud"
 // @Success 200 {object} models.RotateResponse
 // @Router /matrix/rotate [post]
 func Rotate(c *fiber.Ctx) error {
 	// Decodificar la matriz recibida en formato JSON
-	var request struct {
-		Value           [][]float64 `json:"matrix"`
-		RotationDegrees int         `json:"degrees"`
-	}
+	request := models.RotationRequest{}
 
 	if err := c.BodyParser(&request); err != nil {
 		log.Println(err.Error())
@@ -101,7 +121,28 @@ func Rotate(c *fiber.Ctx) error {
 
 	rotationResult := models.RotateResponse{
 		Degrees: rotationDegrees,
-		Result:  rotatedMatrix,
+		Results: []models.MatrixResult{
+			{
+				Type:  enum.Rotated,
+				Value: rotatedMatrix,
+			},
+		},
+	}
+
+	// Segmento de código duplicado, mejorable por interfaz de la response con función de agregado de estadísticas
+	if request.WithStatistics {
+		for index, matrix := range rotationResult.Results {
+			client := restclient.NewClient("http://localhost:3000/matrix/stats")
+			resp, err := client.PostMatrix(matrix.Value)
+
+			if err != nil {
+				log.Println(err.Error())
+
+				return errors.InternalAPI
+			}
+
+			rotationResult.Results[index].Stats = resp
+		}
 	}
 
 	if err := c.BodyParser(&rotationResult); err != nil {

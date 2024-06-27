@@ -29,18 +29,12 @@ const docTemplate = `{
                 "operationId": "factorize-matrix",
                 "parameters": [
                     {
-                        "description": "Matriz a factorizar",
-                        "name": "matrix",
+                        "description": "Solicitud",
+                        "name": "Request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "number"
-                                }
-                            }
+                            "$ref": "#/definitions/models.Request"
                         }
                     }
                 ],
@@ -67,27 +61,12 @@ const docTemplate = `{
                 "operationId": "rotate-matrix",
                 "parameters": [
                     {
-                        "description": "Matriz a rotar",
-                        "name": "matrix",
+                        "description": "Solicitud",
+                        "name": "RotationRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "number"
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "description": "Grados de rotación",
-                        "name": "degrees",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/models.RotationRequest"
                         }
                     }
                 ],
@@ -103,19 +82,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.QRResponse": {
+        "enum.MatrixType": {
+            "type": "string",
+            "enum": [
+                "Q",
+                "R",
+                "Rotated"
+            ],
+            "x-enum-varnames": [
+                "Q",
+                "R",
+                "Rotated"
+            ]
+        },
+        "models.MatrixResult": {
             "type": "object",
             "properties": {
-                "Q": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "number"
-                        }
-                    }
+                "stats": {
+                    "$ref": "#/definitions/models.MatrixStats"
                 },
-                "R": {
+                "type": {
+                    "$ref": "#/definitions/enum.MatrixType"
+                },
+                "value": {
                     "type": "array",
                     "items": {
                         "type": "array",
@@ -126,13 +115,41 @@ const docTemplate = `{
                 }
             }
         },
-        "models.RotateResponse": {
+        "models.MatrixStats": {
             "type": "object",
             "properties": {
-                "degrees": {
-                    "type": "integer"
+                "avg": {
+                    "type": "number"
                 },
-                "result": {
+                "is_diagonal": {
+                    "type": "boolean"
+                },
+                "max": {
+                    "type": "number"
+                },
+                "min": {
+                    "type": "number"
+                },
+                "sum": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.QRResponse": {
+            "type": "object",
+            "properties": {
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MatrixResult"
+                    }
+                }
+            }
+        },
+        "models.Request": {
+            "type": "object",
+            "properties": {
+                "matrix": {
                     "type": "array",
                     "items": {
                         "type": "array",
@@ -140,6 +157,45 @@ const docTemplate = `{
                             "type": "number"
                         }
                     }
+                },
+                "with_statistics": {
+                    "description": "required: false",
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.RotateResponse": {
+            "type": "object",
+            "properties": {
+                "degrees": {
+                    "type": "integer"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MatrixResult"
+                    }
+                }
+            }
+        },
+        "models.RotationRequest": {
+            "type": "object",
+            "properties": {
+                "degrees": {
+                    "type": "integer"
+                },
+                "matrix": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "with_statistics": {
+                    "description": "required: false",
+                    "type": "boolean"
                 }
             }
         }

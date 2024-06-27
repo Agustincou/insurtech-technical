@@ -1,30 +1,82 @@
 basePath: /matrix
 definitions:
-  models.QRResponse:
+  enum.MatrixType:
+    enum:
+    - Q
+    - R
+    - Rotated
+    type: string
+    x-enum-varnames:
+    - Q
+    - R
+    - Rotated
+  models.MatrixResult:
     properties:
-      Q:
-        items:
-          items:
-            type: number
-          type: array
-        type: array
-      R:
+      stats:
+        $ref: '#/definitions/models.MatrixStats'
+      type:
+        $ref: '#/definitions/enum.MatrixType'
+      value:
         items:
           items:
             type: number
           type: array
         type: array
     type: object
-  models.RotateResponse:
+  models.MatrixStats:
     properties:
-      degrees:
-        type: integer
-      result:
+      avg:
+        type: number
+      is_diagonal:
+        type: boolean
+      max:
+        type: number
+      min:
+        type: number
+      sum:
+        type: number
+    type: object
+  models.QRResponse:
+    properties:
+      results:
+        items:
+          $ref: '#/definitions/models.MatrixResult'
+        type: array
+    type: object
+  models.Request:
+    properties:
+      matrix:
         items:
           items:
             type: number
           type: array
         type: array
+      with_statistics:
+        description: 'required: false'
+        type: boolean
+    type: object
+  models.RotateResponse:
+    properties:
+      degrees:
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/models.MatrixResult'
+        type: array
+    type: object
+  models.RotationRequest:
+    properties:
+      degrees:
+        type: integer
+      matrix:
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+      with_statistics:
+        description: 'required: false'
+        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -40,16 +92,12 @@ paths:
       description: Recibe una matriz y retorna dos matrices Q y R
       operationId: factorize-matrix
       parameters:
-      - description: Matriz a factorizar
+      - description: Solicitud
         in: body
-        name: matrix
+        name: Request
         required: true
         schema:
-          items:
-            items:
-              type: number
-            type: array
-          type: array
+          $ref: '#/definitions/models.Request'
       produces:
       - application/json
       responses:
@@ -66,22 +114,12 @@ paths:
         90) y retorna la matriz rotada dicha cantidad de grados
       operationId: rotate-matrix
       parameters:
-      - description: Matriz a rotar
+      - description: Solicitud
         in: body
-        name: matrix
+        name: RotationRequest
         required: true
         schema:
-          items:
-            items:
-              type: number
-            type: array
-          type: array
-      - description: Grados de rotación
-        in: body
-        name: degrees
-        required: true
-        schema:
-          type: integer
+          $ref: '#/definitions/models.RotationRequest'
       produces:
       - application/json
       responses:
